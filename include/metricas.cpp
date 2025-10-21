@@ -7,14 +7,14 @@
 using namespace std;
 using namespace std::chrono;
 
-// Contadores globales
+
 long merge_comparaciones = 0;
 long merge_intercambios = 0;
 
 long shell_comparaciones = 0;
 long shell_intercambios = 0;
 
-// -------------------- Shell Sort --------------------
+
 void ShellSort(long a[], long num) {
     long k = num + 1;
     while (k > 1) {
@@ -25,16 +25,16 @@ void ShellSort(long a[], long num) {
             while (j - k >= 1 && a[j - k] > temp) {
                 a[j] = a[j - k];
                 j = j - k;
-                shell_comparaciones++;  // Comparación realizada
-                shell_intercambios++;   // Intercambio realizado
+                shell_comparaciones++;  
+                shell_intercambios++;   
             }
             a[j] = temp;
-            shell_intercambios++;  // Intercambio realizado (cuando se coloca el temp en su lugar)
+            shell_intercambios++;  
         }
     }
 }
 
-// -------------------- Merge Sort --------------------
+
 void merge(long A[], long izquierda, long medio, long derecha) {
     long n1 = medio - izquierda + 1;
     long n2 = derecha - medio;
@@ -50,7 +50,7 @@ void merge(long A[], long izquierda, long medio, long derecha) {
     long k = izquierda;
 
     while (i < n1 && j < n2) {
-        merge_comparaciones++;  // Comparación realizada
+        merge_comparaciones++;  
         if (L[i] <= R[j]) {
             A[k] = L[i];
             i++;
@@ -65,14 +65,14 @@ void merge(long A[], long izquierda, long medio, long derecha) {
         A[k] = L[i];
         i++;
         k++;
-        merge_intercambios++;  // Intercambio realizado
+        merge_intercambios++;  
     }
 
     while (j < n2) {
         A[k] = R[j];
         j++;
         k++;
-        merge_intercambios++;  // Intercambio realizado
+        merge_intercambios++;  
     }
 }
 
@@ -85,7 +85,7 @@ void mergeSort(long A[], long izquierda, long derecha) {
     }
 }
 
-// -------------------- Leer archivo CSV --------------------
+
 void readCSV(const string& filename, vector<long>& arreglo) {
     ifstream file(filename);
     string line;
@@ -96,19 +96,19 @@ void readCSV(const string& filename, vector<long>& arreglo) {
         string value;
 
         while (getline(ss, value, ',')) {
-            arreglo.push_back(stol(value));  // Agrega cada número al vector
+            arreglo.push_back(stol(value));  
         }
     }
 }
 
-// -------------------- Escribir resultados en CSV --------------------
+
 void writeCSV(const string& filename, const vector<vector<string>>& resultados) {
     ofstream file(filename);
     
-    // Escribir los encabezados
+    
     file << "Archivo,Tamaño del Arreglo,Tiempo Merge Sort (µs),Tiempo Shell Sort (µs),Comparaciones Merge Sort,Intercambios Merge Sort,Comparaciones Shell Sort,Intercambios Shell Sort\n";
 
-    // Escribir los resultados
+    
     for (const auto& resultado : resultados) {
         file << resultado[0] << "," << resultado[1] << ","
              << resultado[2] << "," << resultado[3] << ","
@@ -117,11 +117,11 @@ void writeCSV(const string& filename, const vector<vector<string>>& resultados) 
     }
 }
 
-// -------------------- PROGRAMA PRINCIPAL --------------------
-int main() {
-    vector<vector<string>> resultados;  // Almacena los resultados de todos los archivos
 
-    // Lista de nombres de los archivos CSV
+int main() {
+    vector<vector<string>> resultados;  
+
+    
     vector<string> archivos = {
         "arreglo1.csv", "arreglo2.csv", "arreglo3.csv", "arreglo4.csv", "arreglo5.csv",
         "arreglo6.csv", "arreglo7.csv", "arreglo8.csv", "arreglo9.csv", "arreglo10.csv",
@@ -131,52 +131,52 @@ int main() {
         "arreglo26.csv", "arreglo27.csv", "arreglo28.csv", "arreglo29.csv", "arreglo30.csv"
     };
 
-    // Iterar sobre cada archivo CSV
+    
     for (const string& archivo : archivos) {
         vector<long> arreglo;
-        readCSV(archivo, arreglo);  // Leer el arreglo desde el archivo
+        readCSV(archivo, arreglo);  
 
         long n = arreglo.size();
 
-        if (n == 0) continue;  // Si el arreglo está vacío, continuar con el siguiente
+        if (n == 0) continue; 
 
         long A[n], B[n];
 
-        // Copiar los arreglos en A y B
+        
         for (long j = 0; j < n; j++) {
             A[j] = arreglo[j];
             B[j] = arreglo[j];
         }
 
-        // Medir el tiempo de ejecución de Merge Sort
+        
         auto inicio_merge = high_resolution_clock::now();
         mergeSort(A, 0, n - 1);
         auto fin_merge = high_resolution_clock::now();
         
         auto tiempo_merge_us = duration_cast<microseconds>(fin_merge - inicio_merge).count();
 
-        // Medir el tiempo de ejecución de Shell Sort
+        
         auto inicio_shell = high_resolution_clock::now();
         ShellSort(B, n - 1);
         auto fin_shell = high_resolution_clock::now();
         
         auto tiempo_shell_us = duration_cast<microseconds>(fin_shell - inicio_shell).count();
 
-        // Guardar los resultados para este archivo
+        
         resultados.push_back({
             archivo, to_string(n), to_string(tiempo_merge_us), to_string(tiempo_shell_us),
             to_string(merge_comparaciones), to_string(merge_intercambios),
             to_string(shell_comparaciones), to_string(shell_intercambios)
         });
 
-        // Resetear los contadores para el siguiente archivo
+        
         merge_comparaciones = 0;
         merge_intercambios = 0;
         shell_comparaciones = 0;
         shell_intercambios = 0;
     }
 
-    // Escribir todos los resultados en un archivo CSV
+    
     writeCSV("resultados_comparacion.csv", resultados);
 
     cout << "Los resultados han sido guardados en 'resultados_comparacion.csv'." << endl;
